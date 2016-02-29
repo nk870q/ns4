@@ -11,6 +11,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define DEBUG 1
+
 #define MULTIPLIER 100
 
 #define STANDARD_SLEEP_TIME 100
@@ -133,6 +135,12 @@ typedef enum _ipv6_queue_no
 	IPV6_QUEUE_3
 }ipv6_queue_no;
 
+typedef struct _link_param
+{
+	short slp_time;
+	link_no l_no;
+
+}link_param;
 
 /*
 typedef struct _ipv4Packet
@@ -146,6 +154,8 @@ typedef struct _ipv4Packet
 }ipv4Packet;
 */
 
+
+
 typedef struct _ipv4Packet
 {
 
@@ -155,6 +165,7 @@ typedef struct _ipv4Packet
 	unsigned char *complete_packet;
 
 }ipv4Packet;
+
 
 typedef struct _ipv6Packet
 {

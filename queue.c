@@ -99,7 +99,7 @@ ipv4Packet *  ipv4Dequeue(ipv4_queue_no q_no)
 
 		if(ipv4Queue1_front == ipv4Queue1_rear)
 		{
-			ipv4Queue1_front = ipv4Queue1_front = NULL;
+			ipv4Queue1_front = ipv4Queue1_rear = NULL;
 
 		}
 		else

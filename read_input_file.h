@@ -10,6 +10,8 @@
 
 #include "cn2simulator.h"
 
+//int readFile(char *fname, unsigned char buffer[][PACKECT_SIZE], int maxsize);
+
 int readFile(char *fname, char buffer[][PACKECT_SIZE], int maxsize);
 void Populate_Buffers();
 

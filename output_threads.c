@@ -128,7 +128,8 @@ void process_ipv4_queue1_packets(ipv4_queue_param *qp)
 			//Write The Packet to the file
 			printf("Writing To File outfile1 %s %d\n", __FILE__, __LINE__);
 			//fwrite(ipv4Pkt->complete_packet, sizeof(char), PACKECT_SIZE, outfile1);
-			fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile1);
+			//fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile1);
+			fwrite(ipv4Pkt->complete_packet, 1, PACKECT_SIZE, outfile1);
 			q1_pkt_count++;
 			usleep(qparam->slp_time);
 			
@@ -169,8 +170,9 @@ void process_ipv4_queue2_packets(ipv4_queue_param *qp)
 			printf("Writing To File outfile2 %s %d\n", __FILE__, __LINE__);
 			//Write The Packet to the file
 	//		fwrite(ipv4Pkt->complete_packet, sizeof(char), PACKECT_SIZE, outfile2);
-			fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile2);
+			//fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile2);
 			
+			fwrite(ipv4Pkt->complete_packet, 1, PACKECT_SIZE, outfile2);
 			q2_pkt_count++;
 			usleep(qparam->slp_time);
 			
@@ -214,7 +216,8 @@ void process_ipv4_queue3_packets(ipv4_queue_param *qp)
 			printf("Writing To File outfile3 %s %d\n", __FILE__, __LINE__);
 			//Write The Packet to the file
 			//fwrite(ipv4Pkt->complete_packet, sizeof(char), PACKECT_SIZE, outfile3);
-			fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile3);
+			//fwrite(ipv4Pkt->complete_packet, sizeof(unsigned char), PACKECT_SIZE, outfile3);
+			fwrite(ipv4Pkt->complete_packet, 1, PACKECT_SIZE, outfile3);
 			q3_pkt_count++;
 			usleep(qparam->slp_time);
 		}
