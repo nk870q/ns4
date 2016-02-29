@@ -18,14 +18,14 @@ void print_hex(unsigned char *ptr, int size)
 	int i = 0;
 	while (i < size)
 	{
-		printf("%02x\n", ptr[i]);
+		printf("%x\n", ptr[i]);
 		i++;
 	}
 }
 
 void print_routing_info(ipv4RoutingInfo *info)
 {
-	printf("src_ntwrk :\n");
+/*	printf("src_ntwrk :\n");
 	print_hex(info->src_ntwrk, 4);
 
 	printf("dst_ntwrk :\n");
@@ -45,8 +45,9 @@ void print_routing_info(ipv4RoutingInfo *info)
 	
 	printf("future :\n");
 	print_hex(info->future, 4);
-	
-		
+*/
+	printf("dst_ntwrk :\n");
+	print_hex(info->dst_ntwrk, 4);
 }
 
 void print_ipv4_routing_tbl(ipv4RoutingTable *tbl)

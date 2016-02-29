@@ -8,6 +8,8 @@
 #ifndef BLD_ROUTING_TBL_H_
 #define BLD_ROUTING_TBL_H_
 
+#include "cn2simulator.h"
+
 void print_hex(unsigned char *ptr, int size);
 void print_routing_info(ipv4RoutingInfo *info);
 void print_ipv4_routing_tbl(ipv4RoutingTable *tbl);

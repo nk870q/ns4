@@ -12,13 +12,9 @@
 #include "input_threads.h"
 
 
-/*
-int thread1_byte_counter = 0;
-int thread2_byte_counter = 0;
-int thread3_byte_counter = 0;
-*/
 
 link_param input_link1_param, input_link2_param, input_link3_param;
+
 
 /*This function calculates the relative speed of each link based on rate
  * limit for both input and output links. This then transfers that to nano
@@ -30,35 +26,35 @@ link_param input_link1_param, input_link2_param, input_link3_param;
 void *input_link_thread_function( void *ptr )
 {
 	int datetime_diff_ms;
-	link_param *lparam;
+	link_param *lp;
 
 	struct timeval t0, t1;
 
-	lparam = (link_param *)ptr;
+	lp = (link_param *)ptr;
 
-	printf("Thread For Link %d\n", lparam->l_no);
+	printf("Thread For Link %d %s %d \n", lp->l_no, __FILE__, __LINE__);
 	gettimeofday(&t0, NULL);
 
 /*
  * To simulate speed limit, make the thread to sleep for the calculated time
  */
-	usleep(lparam->slp_time);
+//	usleep(lparam->slp_time);
 
-	switch( lparam->l_no )
+	switch( lp->l_no )
 	{
 		case LINK1:
-			printf("Thread 1 had slept for :%d\n", lparam->slp_time);
-			process_link1_packets();
+//			printf("Thread 1 had slept for :%d\n", lparam->slp_time);
+			process_link1_packets(lp);
 			break;
 
 		case LINK2:
-			printf("Thread 2 had slept for :%d\n", lparam->slp_time);
-			process_link2_packets();
+//			printf("Thread 2 had slept for :%d\n", lparam->slp_time);
+			process_link2_packets(lp);
 			break;
 
 		case LINK3:
-			printf("Thread 2 had slept for :%d\n", lparam->slp_time);
-			process_link3_packets();
+	//		printf("Thread 2 had slept for :%d\n", lparam->slp_time);
+			process_link3_packets(lp);
 			break;
 
 		default:
@@ -71,7 +67,7 @@ void *input_link_thread_function( void *ptr )
 	return ptr;
 }
 
-void process_link1_packets()
+void process_link1_packets(link_param *lparam)
 {
 
 	int i;
@@ -79,19 +75,25 @@ void process_link1_packets()
 	int src_counter = 0;
 	int dst_counter = 0;
 
-
 	ipv4Packet *ipv4Pkt;
 	ipv6Packet *ipv6Pkt;
 
+	link_param *lp;
+	lp = lparam;
+
+
 	for(i=0; i<input_link1_pkt_count; i++)
 	{
+//Sleep For Calculated time
+		usleep(lp->slp_time);
+
 		hdr_first_byte = Buffer1[i][0];
 		char *pktPtr = Buffer1[i];
 
-		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
+//		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
 		if ((hdr_first_byte >> 4) == 4)
 		{
-			printf("Found IPv4 Packet \n");
+//			printf("Found IPv4 Packet \n");
 			ipv4Pkt = (ipv4Packet *) malloc(sizeof(ipv4Packet));
 			ipv4Pkt->version = 4;
 
@@ -99,23 +101,25 @@ void process_link1_packets()
 			pktPtr = pktPtr + 12;
 
 			strncpy(ipv4Pkt->source_ip, pktPtr, 4);
-/*
-			for (src_counter =0; src_counter <=3; src_counter++)
-				printf("Source Ip[%d] :%02x\n", src_counter, ipv4Pkt->source_ip[src_counter]);
-*/
+
 
 //Extract the Destination Ip by moving pktPtr to the starting of Destination Ip
 			pktPtr = pktPtr + 4;
 			strncpy(ipv4Pkt->dest_ip, pktPtr, 4);
 
 // Copy the Original complete Packet
-			strncpy(ipv4Pkt->complete_packet, Buffer1[i], PACKECT_SIZE);
+			//strncpy(ipv4Pkt->complete_packet, Buffer1[i], PACKECT_SIZE);
+
+			ipv4Pkt->complete_packet = Buffer1[i];
 			process_ipv4Packet(ipv4Pkt);
 
+	//		sleep(10);
+		//	printf("procesed link 1 packet %d\n", (i+1));
 
-/*			for (dst_counter =0; dst_counter <=3; dst_counter++)
-				printf("Dest Ip[%d] :%02x\n", src_counter, ipv4Pkt->dest_ip[dst_counter]);
-*/
+
+			//Sleep For Calculated time
+			usleep(lp->slp_time);
+
 		}
 		else if ((hdr_first_byte >> 4) == 6)
 			printf("Found IPv6 Packet \n");
@@ -126,7 +130,7 @@ void process_link1_packets()
 	printf("Processed all %d Link1 Packets\n", i);
 }
 
-void process_link2_packets()
+void process_link2_packets(link_param *lparam)
 {
 
 	int i;
@@ -134,19 +138,23 @@ void process_link2_packets()
 	int src_counter = 0;
 	int dst_counter = 0;
 
-
 	ipv4Packet *ipv4Pkt;
 	ipv6Packet *ipv6Pkt;
 
+	link_param *lp = lparam;
+
+
 	for(i=0; i<input_link2_pkt_count; i++)
 	{
+
+
 		hdr_first_byte = Buffer2[i][0];
 		char *pktPtr = Buffer2[i];
 
-		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
+//		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
 		if ((hdr_first_byte >> 4) == 4)
 		{
-			printf("Found IPv4 Packet \n");
+//			printf("Found IPv4 Packet \n");
 			ipv4Pkt = (ipv4Packet *) malloc(sizeof(ipv4Packet));
 			ipv4Pkt->version = 4;
 
@@ -154,23 +162,23 @@ void process_link2_packets()
 			pktPtr = pktPtr + 12;
 
 			strncpy(ipv4Pkt->source_ip, pktPtr, 4);
-	/*
-				for (src_counter =0; src_counter <=3; src_counter++)
-					printf("Source Ip[%d] :%02x\n", src_counter, ipv4Pkt->source_ip[src_counter]);
-	*/
+
 
 	//Extract the Destination Ip by moving pktPtr to the starting of Destination Ip
 			pktPtr = pktPtr + 4;
 			strncpy(ipv4Pkt->dest_ip, pktPtr, 4);
 
 	// Copy the Original complete Packet
-			strncpy(ipv4Pkt->complete_packet, Buffer2[i], PACKECT_SIZE);
+			//strncpy(ipv4Pkt->complete_packet, Buffer2[i], PACKECT_SIZE);
+			ipv4Pkt->complete_packet = Buffer2[i];
+
 			process_ipv4Packet(ipv4Pkt);
 
+	//		sleep(10);
+		//	printf("procesed link 2 packet %d\n", (i+1));
+			//Sleep For Calculated time
+			usleep(lp->slp_time);
 
-	/*			for (dst_counter =0; dst_counter <=3; dst_counter++)
-					printf("Dest Ip[%d] :%02x\n", src_counter, ipv4Pkt->dest_ip[dst_counter]);
-	*/
 		}
 		else if ((hdr_first_byte >> 4) == 6)
 		{
@@ -183,7 +191,7 @@ void process_link2_packets()
 	printf("Processed all %d Link2 Packets\n", i);
 }
 
-void process_link3_packets()
+void process_link3_packets(link_param *lparam)
 {
 
 	int i;
@@ -195,15 +203,20 @@ void process_link3_packets()
 	ipv4Packet *ipv4Pkt;
 	ipv6Packet *ipv6Pkt;
 
+	link_param *lp = lparam;
+
+
 	for(i=0; i<input_link3_pkt_count; i++)
 	{
+
+
 		hdr_first_byte = Buffer3[i][0];
 		char *pktPtr = Buffer3[i];
 
-		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
+//		printf ("IP Header 1st Byte :%d \n", hdr_first_byte);
 		if ((hdr_first_byte >> 4) == 4)
 		{
-			printf("Found IPv4 Packet \n");
+//			printf("Found IPv4 Packet \n");
 			ipv4Pkt = (ipv4Packet *) malloc(sizeof(ipv4Packet));
 			ipv4Pkt->version = 4;
 
@@ -221,13 +234,16 @@ void process_link3_packets()
 			strncpy(ipv4Pkt->dest_ip, pktPtr, 4);
 
 	// Copy the Original complete Packet
-			strncpy(ipv4Pkt->complete_packet, Buffer3[i], PACKECT_SIZE);
+	//		strncpy(ipv4Pkt->complete_packet, Buffer3[i], PACKECT_SIZE);
+			ipv4Pkt->complete_packet = Buffer3[i];
 			process_ipv4Packet(ipv4Pkt);
 
+	//		sleep(10);
+		//	printf("procesed link 3 packet %d\n", (i+1));
 
-	/*			for (dst_counter =0; dst_counter <=3; dst_counter++)
-					printf("Dest Ip[%d] :%02x\n", src_counter, ipv4Pkt->dest_ip[dst_counter]);
-	*/
+			//Sleep For Calculated time
+			usleep(lp->slp_time);
+
 		}
 		else if ((hdr_first_byte >> 4) == 6)
 		{
@@ -235,7 +251,7 @@ void process_link3_packets()
 		}
 
 	}
-	printf("Processed all %d Link3 Packets\n", i);
+	printf("Processed all %d Link3 Packets %s %d\n", i, __FILE__, __LINE__);
 }
 
 int start_input_threads()

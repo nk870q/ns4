@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <string.h>
+#include <semaphore.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -20,6 +21,11 @@ typedef unsigned short ushort;
 #define INPUT_FILE1_NAME "link1flow"
 #define INPUT_FILE2_NAME "link2flow"
 #define INPUT_FILE3_NAME "link3flow"
+
+//Output File Names
+#define IPV4_OUTPUT_FILE1_NAME "outfile1"
+#define IPV4_OUTPUT_FILE2_NAME "outfile2"
+#define IPV4_OUTPUT_FILE3_NAME "outfile3"
 
 //Forwarding or Routing Table File Names
 #define IPV4_ROUTING_TBL_NAME "ipv4Table"
@@ -60,9 +66,17 @@ char * Buffer1[MAX_FILE1_SIZE];
 char * Buffer2[MAX_FILE2_SIZE];
 char * Buffer3[MAX_FILE3_SIZE];
 */
+/*
+extern unsigned char Buffer1[MAX_FILE1_SIZE][PACKECT_SIZE];
+extern unsigned char Buffer2[MAX_FILE2_SIZE][PACKECT_SIZE];
+extern unsigned char Buffer3[MAX_FILE3_SIZE][PACKECT_SIZE];
+*/
+
+/*
 extern char Buffer1[MAX_FILE1_SIZE][PACKECT_SIZE];
 extern char Buffer2[MAX_FILE2_SIZE][PACKECT_SIZE];
 extern char Buffer3[MAX_FILE3_SIZE][PACKECT_SIZE];
+*/
 
 /*
 int thread1_byte_counter = 0;
@@ -100,7 +114,7 @@ typedef struct _ipv6RoutingTable ipv6RoutingTable;
 
 typedef enum _link_no
 {
-	LINK1,
+	LINK1 = 1,
 	LINK2,
 	LINK3
 }link_no;
@@ -120,6 +134,17 @@ typedef enum _ipv6_queue_no
 }ipv6_queue_no;
 
 
+/*
+typedef struct _ipv4Packet
+{
+
+	short version;
+	unsigned char source_ip[4];
+	unsigned char dest_ip[4];
+	unsigned char complete_packet[PACKECT_SIZE];
+
+}ipv4Packet;
+*/
 
 typedef struct _ipv4Packet
 {
@@ -127,7 +152,7 @@ typedef struct _ipv4Packet
 	short version;
 	unsigned char source_ip[4];
 	unsigned char dest_ip[4];
-	char complete_packet[PACKECT_SIZE];
+	unsigned char *complete_packet;
 
 }ipv4Packet;
 
@@ -137,21 +162,21 @@ typedef struct _ipv6Packet
 	short version;
 	unsigned char source_ip[16];
 	unsigned char dest_ip[16];
-	char complete_packet[PACKECT_SIZE];
+	unsigned char complete_packet[PACKECT_SIZE];
 
 }ipv6Packet;
 
 
 typedef struct _ipv4RoutingInfo
 {
-	char src_ntwrk[4];
-	char dst_ntwrk[4];
-	char dst_ntwrk_mask[4];
+	unsigned char src_ntwrk[4];
+	unsigned char dst_ntwrk[4];
+	unsigned char dst_ntwrk_mask[4];
 
-	char nxt_hop_ip[4];
-	char output_port;
-	char output_port_queue;
-	char future[4];
+	unsigned char nxt_hop_ip[4];
+	unsigned char output_port;
+	unsigned char output_port_queue;
+	unsigned char future[4];
 
 }ipv4RoutingInfo;
 
@@ -203,5 +228,6 @@ void process_link2_packets();
 void process_link3_packets();
 
 void calculate_threads_slp_times();
+void initialize_output_files();
 
 #endif

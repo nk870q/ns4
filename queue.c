@@ -7,6 +7,7 @@
 
 
 #include "queue.h"
+#include <semaphore.h>
 
 ipv4Node *ipv4Queue1_front = NULL;
 ipv4Node *ipv4Queue1_rear = NULL;
@@ -30,40 +31,58 @@ void ipv4Enqueue(ipv4_queue_no q_no, ipv4Packet *ipv4Pkt)
 	switch(q_no)
 	{
 	case IPV4_QUEUE_1:
+
+	//	printf("Adding Packet To IPV4_QUEUE_1 %s %d", __FILE__, __LINE__);
 		if(ipv4Queue1_front == NULL && ipv4Queue1_rear == NULL)
 		{
+			printf("Adding Packet To IPV4_QUEUE_1 first Time %s %d", __FILE__, __LINE__);
 			ipv4Queue1_front = ipv4Queue1_rear = temp;
+
 			return;
 		}
+		printf("Adding Packet To IPV4_QUEUE_1 Afterwards %s %d", __FILE__, __LINE__);
+
 		ipv4Queue1_rear->next = temp;
 		ipv4Queue1_rear = temp;
+
 
 		break;
 
 	case IPV4_QUEUE_2:
+
 		if(ipv4Queue2_front == NULL && ipv4Queue2_rear == NULL)
 		{
+			printf("Adding Packet To IPV4_QUEUE_2 first Time %s %d", __FILE__, __LINE__);
 			ipv4Queue2_front = ipv4Queue2_rear = temp;
+
 			return;
 		}
+
+		printf("Adding Packet To IPV4_QUEUE_2 Afterwards %s %d", __FILE__, __LINE__);
 		ipv4Queue2_rear->next = temp;
 		ipv4Queue2_rear = temp;
+
 		break;
 
 	case IPV4_QUEUE_3:
+
 		if(ipv4Queue3_front == NULL && ipv4Queue3_rear == NULL)
 		{
+			printf("Adding Packet To IPV4_QUEUE_3 first Time %s %d", __FILE__, __LINE__);
 			ipv4Queue3_front = ipv4Queue3_rear = temp;
+
 			return;
 		}
+		printf("Adding Packet To IPV4_QUEUE_3 Afterwards %s %d", __FILE__, __LINE__);
 		ipv4Queue3_rear->next = temp;
 		ipv4Queue3_rear = temp;
+
 		break;
 	}
 
 }
 
-ipv4Packet * ipv4Dequeue(ipv4_queue_no q_no)
+ipv4Packet *  ipv4Dequeue(ipv4_queue_no q_no)
 {
 	ipv4Node *temp = NULL;
 	ipv4Packet *ipv4Pkt = NULL;
