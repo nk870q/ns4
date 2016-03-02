@@ -29,4 +29,4 @@ cn2simulator.o: cn2simulator.c cn2simulator.h
 	gcc -c  cn2simulator.c cn2simulator.h
 	
 clean:
-	rm -rf cn2Simulator *.o
+	rm -rf cn2Simulator *.o *.gch outfile* log.txt table

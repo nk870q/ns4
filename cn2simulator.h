@@ -30,34 +30,35 @@ typedef unsigned short ushort;
 #define IPV4_OUTPUT_FILE3_NAME "outfile3"
 
 //Forwarding or Routing Table File Names
-#define IPV4_ROUTING_TBL_NAME "ipv4Table"
+//#define IPV4_ROUTING_TBL_NAME "ipv4Table"
+#define IPV4_ROUTING_TBL_NAME "forwardingtable1"
 #define IPV6_ROUTING_TBL_NAME "ipv6Table"
 
 //Maximum No of Forwarding Table Entries
-#define MAX_ROUTING_ENTRY 100
+#define MAX_ROUTING_ENTRY 22
 
 //Partitioning element size used to partition different components of the forwarding table
-#define PARTITION_SIZE 1
+#define PARTITION_SIZE 0
 
 //Maximum No of Forwarding Table Entries
-#define IPV4_ROUTING_RECORD_SIZE 50
+#define IPV4_ROUTING_RECORD_SIZE 22
 #define IPV6_ROUTING_RECORD_SIZE 100
 
 
 //THis defines How many maximum records they will provide in each file
-#define MAX_FILE1_SIZE 1000
-#define MAX_FILE2_SIZE 1000
-#define MAX_FILE3_SIZE 1000
+#define MAX_FILE1_SIZE 1100
+#define MAX_FILE2_SIZE 1100
+#define MAX_FILE3_SIZE 1100
 
 //Input Link Speed Limits
 #define INPUT_LINK1_SPEED 20
-#define INPUT_LINK2_SPEED 15
-#define INPUT_LINK3_SPEED 10
+#define INPUT_LINK2_SPEED 32
+#define INPUT_LINK3_SPEED 20
 
 //Output Link Speed Limits
-#define OUTPUT_LINK1_SPEED 20
-#define OUTPUT_LINK2_SPEED 10
-#define OUTPUT_LINK3_SPEED 5
+#define OUTPUT_LINK1_SPEED 28
+#define OUTPUT_LINK2_SPEED 60
+#define OUTPUT_LINK3_SPEED 24
 
 //Each Packet size. Used to read that number of bytes from the file at a time
 #define PACKECT_SIZE 500
@@ -187,7 +188,8 @@ typedef struct _ipv4RoutingInfo
 	unsigned char nxt_hop_ip[4];
 	unsigned char output_port;
 	unsigned char output_port_queue;
-	unsigned char future[4];
+	unsigned char ds_ecn;
+	unsigned char pad[3];
 
 }ipv4RoutingInfo;
 

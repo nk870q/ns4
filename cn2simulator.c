@@ -34,6 +34,7 @@ FILE *outfile2 = NULL;
 FILE *outfile3 = NULL;
 
 FILE *logfile=NULL;
+FILE *route=NULL;
 
 FILE *pkt = NULL;
 
@@ -208,6 +209,7 @@ void initialize_output_files()
 		printf("Could not open %s\n", IPV4_OUTPUT_FILE3_NAME);
 		exit(0);
 	}
+/*
 	//Open The Output Files To Write in Binary Mode.
 	pkt = fopen("Packet", "wb");
 	if(NULL == pkt)
@@ -215,6 +217,7 @@ void initialize_output_files()
 		printf("Could not open Packet\n");
 		exit(0);
 	}
+*/
 }
 //Assigned - Navneet
 
@@ -228,6 +231,9 @@ int process_ipv4Packet(ipv4Packet *packet)
 {
 	int tbl_exist = FALSE;
 	ipv4RoutingTable *ipv4Entry;
+
+	//This is to take care of the last entry in routing table where the packet has to go to default port
+	ipv4RoutingTable *ipv4EntryPrev = NULL;
 
 	ipv4Entry = ipv4RoutingTbl;
 	if (ipv4Entry == NULL)
@@ -269,7 +275,7 @@ int process_ipv4Packet(ipv4Packet *packet)
 		{
 			printf("Found ROuting Info, Adding Packet to Queue %d\n", ipv4Entry->info.output_port_queue);
 			
-			if (0x01 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port_queue)))
+			if (0x01 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port)))
 			{
 				pthread_mutex_lock (&ipv4_queue1_mutex);
 				ipv4Enqueue(IPV4_QUEUE_1, packet);
@@ -279,7 +285,7 @@ int process_ipv4Packet(ipv4Packet *packet)
 				//printf("procesed link 3 packet %d\n", (i+1));
 				
 			}
-			if (0x02 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port_queue)))
+			if (0x02 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port)))
 			{
 				pthread_mutex_lock (&ipv4_queue2_mutex);
 				ipv4Enqueue(IPV4_QUEUE_2, packet);
@@ -288,7 +294,7 @@ int process_ipv4Packet(ipv4Packet *packet)
 				
 			}
 			
-			if (0x03 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port_queue)))
+			if (0x03 == ((unsigned) (unsigned char)(ipv4Entry->info.output_port)))
 			{
 				pthread_mutex_lock (&ipv4_queue3_mutex);
 				ipv4Enqueue(IPV4_QUEUE_3, packet);
@@ -303,7 +309,17 @@ int process_ipv4Packet(ipv4Packet *packet)
 		else
 		{
 //			printf("Checking Other Routing Entries\n");
+			ipv4EntryPrev = ipv4Entry;
 			ipv4Entry = ipv4Entry->next;
+			if (NULL == ipv4Entry)
+			{
+				//Put the Packet in default port. ipv4EntryPrev holds the address of default entry
+				pthread_mutex_lock (&ipv4_queue2_mutex);
+				ipv4Enqueue(ipv4EntryPrev->info.output_port, packet);
+				pthread_mutex_unlock(&ipv4_queue2_mutex);
+				sem_post(&ipv4_queue2_sem);
+
+			}
 		}
 
 	}
@@ -643,6 +659,15 @@ int main(void) {
 
 	}
 
+	//Open the logfile for logging messages
+		route  = fopen("table", "w");
+		if(NULL == route)
+		{
+			printf("No Disk space for logging, Exiting Simulator...\n");
+			exit(0);
+
+		}
+
 	calculate_threads_slp_times();
 
 //Read  3 files and store thr content in array
@@ -651,17 +676,29 @@ int main(void) {
 
 	Populate_Routing_Tbls();
 	
+	Print_Routing_Tbls();
+
+	sleep(2);
+
 	initialize_output_files();
 	
 	printf("Starting Input Threads\n");
+	fprintf(logfile, "Starting Input Threads\n");
+
 	in_thread_status = start_input_threads();
 	if (FALSE == in_thread_status)
+	{
 		printf("Could Not Start The Input Threads \n");
+		fprintf(logfile, "Could Not Start The Input Threads \n");
+	}
 
 //Start Output Threads
 	out_thread_status = start_output_link_threads();
 	if (FALSE == out_thread_status)
+	{
 		printf("Could Not Start The Output Threads \n");
+		fprintf(logfile, "Could Not Start The Output Threads \n");
+	}
 	
 	pthread_join( input_thread1, NULL);
 	

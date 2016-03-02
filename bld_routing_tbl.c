@@ -6,8 +6,12 @@
  */
 
 
-#include "cn2simulator.h"
 #include "bld_routing_tbl.h"
+extern FILE *route;
+
+//extern FILE *route;
+
+unsigned char ipv4Record[IPV4_ROUTING_RECORD_SIZE];
 
 
 ipv4RoutingTable *ipv4RoutingTbl = NULL;
@@ -18,36 +22,56 @@ void print_hex(unsigned char *ptr, int size)
 	int i = 0;
 	while (i < size)
 	{
-		printf("%x\n", ptr[i]);
+		printf("%x ", ptr[i]);
+		fprintf(route, "%x ", ptr[i]);
 		i++;
 	}
+
+
 }
 
 void print_routing_info(ipv4RoutingInfo *info)
 {
-/*	printf("src_ntwrk :\n");
+	printf("src_ntwrk :\n");
+	fprintf(route, "src_ntwrk :");
 	print_hex(info->src_ntwrk, 4);
+	fprintf(route, "\n");
+
 
 	printf("dst_ntwrk :\n");
+	fprintf(route, "dst_ntwrk :");
 	print_hex(info->dst_ntwrk, 4);
-	
+	fprintf(route, "\n");
 	
 	printf("dst_ntwrk_mask :\n");
+	fprintf(route, "dst_ntwrk_mask :");
 	print_hex(info->dst_ntwrk_mask, 4);
+	fprintf(route, "\n");
 	
-
 
 	printf("nxt_hop_ip :\n");
+	fprintf(route, "nxt_hop_ip :");
 	print_hex(info->nxt_hop_ip, 4);
+	fprintf(route, "\n");
 	
 	printf("output_port :%hhX\n", info->output_port);
-	printf("output_port_queue :%hhX\n", info->output_port_queue);
+	fprintf(route, "output_port :%x\n", info->output_port);
+
+	printf("output_port_queue :%x\n", info->output_port_queue);
+	fprintf(route, "output_port_queue :%x\n", info->output_port_queue);
 	
-	printf("future :\n");
-	print_hex(info->future, 4);
-*/
+	printf("ECN :%x\n", info->ds_ecn);
+	fprintf(route, "ECN :%x\n", info->ds_ecn);
+
+	printf("pad :\n");
+	fprintf(route, "pad :");
+	print_hex(info->pad, 3);
+	fprintf(route, "\n");
+
+	/*
 	printf("dst_ntwrk :\n");
 	print_hex(info->dst_ntwrk, 4);
+	*/
 }
 
 void print_ipv4_routing_tbl(ipv4RoutingTable *tbl)
@@ -57,11 +81,16 @@ void print_ipv4_routing_tbl(ipv4RoutingTable *tbl)
 	while (tmp !=NULL)
 	{
 		printf("Entry %d\n", i);
+		fprintf(route, "Entry %d\n", i);
 		print_routing_info(&(tmp->info) );
 		tmp = tmp->next;
 		i++;
 		
 	}
+	fprintf(route, "Total No Of Routing Info %d\n", (i-1));
+
+
+	fclose(route);
 		
 }
 
@@ -95,7 +124,11 @@ ipv4RoutingTable * build_ipv4_info(char *raw_info)
 	strncpy(&(ipv4Info->info.output_port_queue), parser, 1);
 
 	parser+=(1 + PARTITION_SIZE);
-	strncpy(ipv4Info->info.future, parser, 4);
+	strncpy(&(ipv4Info->info.ds_ecn), parser, 1);
+
+	parser+=(1 + PARTITION_SIZE);
+	strncpy(ipv4Info->info.pad, parser, 3);
+
 
 	ipv4Info->next = NULL;
 
@@ -109,7 +142,7 @@ int buildIpv4RoutingTbl()
 {
 	int pkt_count = 0;
 	FILE *fptr=NULL;
-	char ipv4Record[IPV4_ROUTING_RECORD_SIZE];
+
 	ipv4RoutingTable *new_node, *current;
 
 //Open The Input File To Read in Binary Mode.
@@ -124,8 +157,8 @@ int buildIpv4RoutingTbl()
 		if (pkt_count < MAX_ROUTING_ENTRY )
 		{
 
-//			while(fread(ipv4Record, sizeof(char), IPV4_ROUTING_RECORD_SIZE, fptr))
-			while(fgets(ipv4Record, IPV4_ROUTING_RECORD_SIZE, fptr))
+			while(fread(ipv4Record, sizeof(unsigned char), IPV4_ROUTING_RECORD_SIZE, fptr))
+//			while(fgets(ipv4Record, IPV4_ROUTING_RECORD_SIZE, fptr))
 			{
 
 				  new_node = build_ipv4_info(ipv4Record);

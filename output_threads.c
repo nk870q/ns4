@@ -113,6 +113,7 @@ void process_ipv4_queue1_packets(ipv4_queue_param *qp)
 	//Got Signal, Now Lock The queue and takeout one packet
 		pthread_mutex_lock (&ipv4_queue1_mutex);
 		ipv4Pkt = (ipv4Packet *)ipv4Dequeue(IPV4_QUEUE_1);
+		//ipv4Pkt = ipv4Dequeue(IPV4_QUEUE_1);
 	//Unlock The Queue
 		pthread_mutex_unlock(&ipv4_queue1_mutex);
 		
@@ -154,6 +155,7 @@ void process_ipv4_queue2_packets(ipv4_queue_param *qp)
 	//Got Signal, Now Lock The queue and takeout one packet
 		pthread_mutex_lock (&ipv4_queue2_mutex);
 		ipv4Pkt = (ipv4Packet *)ipv4Dequeue(IPV4_QUEUE_2);
+		//ipv4Pkt = ipv4Dequeue(IPV4_QUEUE_2);
 	//Unlock The Queue
 		pthread_mutex_unlock(&ipv4_queue2_mutex);
 		
@@ -199,6 +201,7 @@ void process_ipv4_queue3_packets(ipv4_queue_param *qp)
 	//Got Signal, Now Lock The queue and takeout one packet
 		pthread_mutex_lock (&ipv4_queue3_mutex);
 		ipv4Pkt = (ipv4Packet *)ipv4Dequeue(IPV4_QUEUE_3);
+		//ipv4Pkt = ipv4Dequeue(IPV4_QUEUE_3);
 	//Unlock The Queue
 		pthread_mutex_unlock(&ipv4_queue3_mutex);
 		
