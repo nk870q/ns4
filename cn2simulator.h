@@ -7,32 +7,27 @@
 #include <time.h>
 #include <string.h>
 #include <semaphore.h>
+#include <math.h>
+#include <unistd.h>
+
 
 #define TRUE 1
 #define FALSE 0
 
 #define DEBUG 1
 
-#define MULTIPLIER 100
+#define MULTIPLIER 10
+
+#define SECOND_TO_MICROSEC 1000000
+#define SECOND_TO_NANOSEC 1000000000
+#define MICROSEC_TO_NANOSEC 1000
 
 #define STANDARD_SLEEP_TIME 100
 typedef unsigned short ushort;
 
+#define MAX_FILE_NAME_SIZE 50
 
-//Input File Names
-#define INPUT_FILE1_NAME "link1flow"
-#define INPUT_FILE2_NAME "link2flow"
-#define INPUT_FILE3_NAME "link3flow"
 
-//Output File Names
-#define IPV4_OUTPUT_FILE1_NAME "outfile1"
-#define IPV4_OUTPUT_FILE2_NAME "outfile2"
-#define IPV4_OUTPUT_FILE3_NAME "outfile3"
-
-//Forwarding or Routing Table File Names
-//#define IPV4_ROUTING_TBL_NAME "ipv4Table"
-#define IPV4_ROUTING_TBL_NAME "forwardingtable1"
-#define IPV6_ROUTING_TBL_NAME "ipv6Table"
 
 //Maximum No of Forwarding Table Entries
 #define MAX_ROUTING_ENTRY 22
@@ -46,40 +41,16 @@ typedef unsigned short ushort;
 
 
 //THis defines How many maximum records they will provide in each file
-#define MAX_FILE1_SIZE 1100
-#define MAX_FILE2_SIZE 1100
-#define MAX_FILE3_SIZE 1100
+#define MAX_FILE1_SIZE 4500
+#define MAX_FILE2_SIZE 4500
+#define MAX_FILE3_SIZE 4500
 
-//Input Link Speed Limits
-#define INPUT_LINK1_SPEED 20
-#define INPUT_LINK2_SPEED 32
-#define INPUT_LINK3_SPEED 20
+#define MAX_IPV4_Q_SIZE 5000
 
-//Output Link Speed Limits
-#define OUTPUT_LINK1_SPEED 28
-#define OUTPUT_LINK2_SPEED 60
-#define OUTPUT_LINK3_SPEED 24
 
 //Each Packet size. Used to read that number of bytes from the file at a time
 #define PACKECT_SIZE 500
 
-//Buffer To store the Packets after reading from the file
-/*
-char * Buffer1[MAX_FILE1_SIZE];
-char * Buffer2[MAX_FILE2_SIZE];
-char * Buffer3[MAX_FILE3_SIZE];
-*/
-/*
-extern unsigned char Buffer1[MAX_FILE1_SIZE][PACKECT_SIZE];
-extern unsigned char Buffer2[MAX_FILE2_SIZE][PACKECT_SIZE];
-extern unsigned char Buffer3[MAX_FILE3_SIZE][PACKECT_SIZE];
-*/
-
-/*
-extern char Buffer1[MAX_FILE1_SIZE][PACKECT_SIZE];
-extern char Buffer2[MAX_FILE2_SIZE][PACKECT_SIZE];
-extern char Buffer3[MAX_FILE3_SIZE][PACKECT_SIZE];
-*/
 
 /*
 int thread1_byte_counter = 0;
@@ -122,6 +93,13 @@ typedef enum _link_no
 	LINK3
 }link_no;
 
+typedef enum _ipv4_port_no
+{
+	IPV4_PORT_1 = 1,
+	IPV4_PORT_2,
+	IPV4_PORT_3
+}ipv4_port_no;
+
 typedef enum _ipv4_queue_no
 {
 	IPV4_QUEUE_1 = 1,
@@ -131,39 +109,43 @@ typedef enum _ipv4_queue_no
 
 typedef enum _ipv6_queue_no
 {
-	IPV6_QUEUE_1 = 1,
-	IPV6_QUEUE_2,
-	IPV6_QUEUE_3
+	IPV6_PORT_1 = 1,
+	IPV6_PORT_2,
+	IPV6_PORT_3
 }ipv6_queue_no;
 
 typedef struct _link_param
 {
 	short slp_time;
-	link_no l_no;
+	short pkt_per_second;
+	short remainder;
+	ipv4_port_no port_no;
+	ipv4_queue_no q_no;
 
 }link_param;
 
-/*
-typedef struct _ipv4Packet
+typedef struct _ipv4_port_param
 {
+	short slp_time;
+	int speed;
+	ipv4_port_no port_no;
 
-	short version;
-	unsigned char source_ip[4];
-	unsigned char dest_ip[4];
-	unsigned char complete_packet[PACKECT_SIZE];
-
-}ipv4Packet;
-*/
-
-
+}ipv4_port_param;
 
 typedef struct _ipv4Packet
 {
 
 	short version;
-	unsigned char source_ip[4];
-	unsigned char dest_ip[4];
-	unsigned char *complete_packet;
+	unsigned char source_ip[4]; //source Ip in the Packet
+	unsigned char dest_ip[4]; //Dest Ip in the Packet
+	unsigned short pkt_len; //Total Pkt Length
+	unsigned char dscp_ecn;
+	unsigned char *complete_packet; //Complete Raw Packet
+	struct timespec arrival_time;
+	struct timespec depart_time;
+	int wait_time;
+	int res_time;
+	int pkt_counter;
 
 }ipv4Packet;
 
@@ -174,6 +156,7 @@ typedef struct _ipv6Packet
 	short version;
 	unsigned char source_ip[16];
 	unsigned char dest_ip[16];
+	unsigned short pkt_len;
 	unsigned char complete_packet[PACKECT_SIZE];
 
 }ipv6Packet;
@@ -223,6 +206,19 @@ struct _ipv6RoutingTable
 
 };
 
+typedef struct _ipv4Node ipv4Node;
+typedef struct _ipv6Node ipv6Node;
+
+struct _ipv4Node {
+	ipv4Packet *ipv4Pkt;
+	ipv4Node *next;
+};
+
+
+struct _ipv6Node {
+	ipv6Packet *ipv6Pkt;
+	ipv6Node *next;
+};
 
 extern ipv4RoutingTable *ipv4RoutingTbl ;
 extern ipv6RoutingTable *ipv6RoutingTbl ;
@@ -242,5 +238,7 @@ void process_link3_packets();
 
 void calculate_threads_slp_times();
 void initialize_output_files();
+
+void print_hex(unsigned char *ptr, int size);
 
 #endif
